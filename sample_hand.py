@@ -6,8 +6,10 @@ import argparse
 import cv2 as cv
 import numpy as np
 import mediapipe as mp
-
+import time
 from utils import CvFpsCalc
+from pynput.mouse import Button, Controller
+mouse = Controller()            #さて今回の件ですが
 
 
 def get_args():
@@ -35,6 +37,13 @@ def get_args():
 
 
 def main():
+    kando = 1                   # マウス感度
+    camx, camy = 1080, 720      # カメラの解像度
+    framX, framY = 100, 70      #
+    preX, preY = 0, 0
+    preCli = 0
+    douCli = 0
+
     # 引数解析 #################################################################
     args = get_args()
 
@@ -82,6 +91,7 @@ def main():
         if results.multi_hand_landmarks is not None:
             for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
                                                   results.multi_handedness):
+                landmark_list = calc_landmark_list(debug_image, hand_landmarks)
                 # 手の平重心計算
                 cx, cy = calc_palm_moment(debug_image, hand_landmarks)
                 # 外接矩形の計算
@@ -90,6 +100,53 @@ def main():
                 debug_image = draw_landmarks(debug_image, cx, cy,
                                              hand_landmarks, handedness)
                 debug_image = draw_bounding_rect(use_brect, debug_image, brect)
+
+                # おれ ######################################################
+                # print(landmark_list[8])
+
+                # 人差し指の先端と中指の先端間のユークリッド距離
+                Ugo = (landmark_list[8][0]-landmark_list[12][0],
+                       landmark_list[8][1]-landmark_list[12][1])
+                absUgo = np.linalg.norm(Ugo)
+
+                # 人差し指の第２関節と親指の先端間のユークリッド距離
+                Cli = (landmark_list[6][0]-landmark_list[4][0],
+                       landmark_list[6][1]-landmark_list[4][1])
+                absCli = np.linalg.norm(Cli)
+                # print('absCli='+str(absCli))
+
+                # カメラ座標をマウス移動量に変換
+                dx = kando*(landmark_list[8][0] - preX)
+                dy = kando*(landmark_list[8][1] - preY)
+
+                if absCli < 70:
+                    nowCli = 1
+                if absCli >= 70:
+                    nowCli = 0
+
+                # マウス動かす
+                if absUgo >= 70:
+                    mouse.move(dx, -dy)
+                    # print('Move')
+
+                # click
+                if nowCli == 1 and nowCli != preCli:
+                    mouse.press(Button.left)
+                    print('Clllllllllllllllllllllllllllllick')
+                    douCli+=1
+
+                # release
+                if nowCli == 0 and nowCli != preCli:
+                    mouse.release(Button.left)
+                    print('Releeeeeeeeeeeeeeeeeeeeeeeeeeease')
+                    douCli+=1
+
+                # ダブルクリック 1s以内に2回click→releaseされたら←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+                #if 
+
+                preX = landmark_list[8][0]
+                preY = landmark_list[8][1]
+                preCli = nowCli
 
         cv.putText(debug_image, "FPS:" + str(display_fps), (10, 30),
                    cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2, cv.LINE_AA)
@@ -100,10 +157,26 @@ def main():
             break
 
         # 画面反映 #############################################################
-        cv.imshow('MediaPipe Hand Demo', debug_image)
+        cv.imshow('MediaPipe Hand Mouse', debug_image)
 
     cap.release()
     cv.destroyAllWindows()
+
+
+def calc_landmark_list(image, landmarks):
+    image_width, image_height = image.shape[1], image.shape[0]
+
+    landmark_point = []
+
+    # キーポイント
+    for _, landmark in enumerate(landmarks.landmark):
+        landmark_x = min(int(landmark.x * image_width), image_width - 1)
+        landmark_y = min(int(landmark.y * image_height), image_height - 1)
+        # landmark_z = landmark.z
+
+        landmark_point.append([landmark_x, landmark_y])
+
+    return landmark_point
 
 
 def calc_palm_moment(image, landmarks):
@@ -182,7 +255,6 @@ def draw_landmarks(image, cx, cy, landmarks, handedness):
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
         if index == 4:  # 親指：指先
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
-            cv.circle(image, (landmark_x, landmark_y), 12, (0, 255, 0), 2)
         if index == 5:  # 人差指：付け根
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
         if index == 6:  # 人差指：第2関節
@@ -200,7 +272,6 @@ def draw_landmarks(image, cx, cy, landmarks, handedness):
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
         if index == 12:  # 中指：指先
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
-            cv.circle(image, (landmark_x, landmark_y), 12, (0, 255, 0), 2)
         if index == 13:  # 薬指：付け根
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
         if index == 14:  # 薬指：第2関節
@@ -209,7 +280,6 @@ def draw_landmarks(image, cx, cy, landmarks, handedness):
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
         if index == 16:  # 薬指：指先
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
-            cv.circle(image, (landmark_x, landmark_y), 12, (0, 255, 0), 2)
         if index == 17:  # 小指：付け根
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
         if index == 18:  # 小指：第2関節
@@ -218,7 +288,6 @@ def draw_landmarks(image, cx, cy, landmarks, handedness):
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
         if index == 20:  # 小指：指先
             cv.circle(image, (landmark_x, landmark_y), 5, (0, 255, 0), 2)
-            cv.circle(image, (landmark_x, landmark_y), 12, (0, 255, 0), 2)
 
     # 接続線
     if len(landmark_point) > 0:
