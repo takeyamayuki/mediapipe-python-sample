@@ -2,7 +2,6 @@
 There is no moue, but there is. 
 
 Webカメラで自分の手元を写すことで、あたかも実態のないマウスが出来上がっているかのように見えるプログラムです。  
-現在、UNIX系OSのみ対応です。
 
 ## Installation
 ### 1. Install Mediapipe.
