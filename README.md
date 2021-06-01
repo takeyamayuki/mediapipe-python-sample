@@ -4,7 +4,7 @@ There is no moue, but there is.
 Webカメラで自分の手元を写すことで、あたかも実態のないマウスが出来上がっているかのように見えるプログラムです。  
 
 ## Installation
-### 1. Install Mediapipe.
+### 1. Install Mediapipe　　
 以下の公式ドキュメントに従って、Mediapipeのインストール
 https://google.github.io/mediapipe/getting_started/install.html#installing-on-macos
 
@@ -18,7 +18,7 @@ https://google.github.io/mediapipe/getting_started/install.html#installing-on-ma
 NonMouseフォルダーをダウンロード、解凍する。
 ```sh
 % cd ~/.../NonMouse
-% python app.py
+% python3 app.py
 ```
 ### argument
 `python app.py --device 1`などというふうに引数を取れる。 
