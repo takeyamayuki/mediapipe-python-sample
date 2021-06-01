@@ -9,7 +9,7 @@ import mediapipe as mp
 import time
 from utils import CvFpsCalc
 from pynput.mouse import Button, Controller
-mouse = Controller()            #さて今回の件ですが
+mouse = Controller()            
 
 
 def get_args():
