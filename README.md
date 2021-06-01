@@ -18,7 +18,7 @@ https://google.github.io/mediapipe/getting_started/install.html#installing-on-ma
 NonMouseフォルダーをダウンロード、解凍する。
 ```sh
 % cd ~/.../NonMouse
-% python app.py
+% python3 app.py
 ```
 ### argument
 `python app.py --device 1`などというふうに引数を取れる。 
