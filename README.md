@@ -1,5 +1,4 @@
 # NonMouse
-There is no moue, but there is. 
 感度調整ができるver.2があります。  
 
 Webカメラで自分の手元を写すことで、あたかも実体のないマウスが出来上がっているかのように見えるプログラムです。  
