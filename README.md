@@ -1,5 +1,6 @@
 # NonMouse
 感度調整ができるver.2があります。  
+https://github.com/takeyamayuki/NonMouse2
 
 Webカメラで自分の手元を写すことで、あたかも実体のないマウスが出来上がっているかのように見えるプログラムです。  
 
